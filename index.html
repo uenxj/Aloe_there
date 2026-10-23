@@ -3,33 +3,140 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Chat</title>
+
     <script defer src="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/chat-messenger.js">
     </script>
     <link rel="stylesheet"
         href="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/themes/chat-messenger-default.css">
     <link rel="stylesheet"
         href="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/themes/chat-messenger-layout.css">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #131314;
+        }
+
+        chat-messenger {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        chat-messenger-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
+        }
+
+        :root {
+            --title-size: 1rem;
+            --body-size: 0.95rem;
+        }
+
+        @media (min-width: 640px) {
+            :root {
+                --title-size: 1.1rem;
+                --body-size: 1rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            :root {
+                --title-size: 1.2rem;
+                --body-size: 1.05rem;
+            }
+        }
+
+        chat-messenger {
+            font-size: var(--body-size);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <script>
+        /* ---------- UI strings ---------- */
+        const AGENT_NAME = "Aloe";
+        const STRINGS = {
+            en: { reset: "Start new chat" },
+            zh: { reset: "开始新对话" },
+            ms: { reset: "Mula sembang baharu" },
+            ta: { reset: "புதிய அரட்டையைத் தொடங்கு" },
+            id: { reset: "Mulai obrolan baru" },
+            vi: { reset: "Bắt đầu trò chuyện mới" },
+            ja: { reset: "新しいチャット" },
+            ko: { reset: "새 채팅 시작" },
+            fr: { reset: "Nouvelle conversation" },
+            de: { reset: "Neuer Chat" },
+            es: { reset: "Iniciar nuevo chat" },
+            pt: { reset: "Iniciar novo chat" }
+        };
+        const DEFAULT_LANG = "en";
+
+        /* ---------- Language detection ---------- */
+        function detectLanguage() {
+            const preferred = (navigator.languages && navigator.languages.length)
+                ? navigator.languages
+                : [navigator.language || DEFAULT_LANG];
+
+            for (const tag of preferred) {
+                const base = String(tag).toLowerCase().split("-")[0];
+                if (STRINGS[base]) return base;
+            }
+            return DEFAULT_LANG;
+        }
+
+        const lang = detectLanguage();
+        const t = STRINGS[lang];
+        document.documentElement.lang = lang;
+        document.title = AGENT_NAME;
+
+        /* ---------- Translate the reset button ---------- */
+        function applyTranslations() {
+            const resetBtn = document.querySelector("chat-reset-session-button");
+            if (resetBtn) resetBtn.setAttribute("title-text", t.reset);
+        }
+
+        document.addEventListener("DOMContentLoaded", applyTranslations);
         window.addEventListener("chat-messenger-loaded", () => {
             chatSdk.registerContext(
                 chatSdk.prebuilts.ces.createContext({
-                    deploymentName: "projects/275087618256/locations/us/apps/3160b847-528e-4efd-a061-2ad09df08f69/deployments/44ffabf6-4b2f-4d3f-838b-093d0f24d652"
+                    deploymentName: "projects/275087618256/locations/us/apps/3160b847-528e-4efd-a061-2ad09df08f69/deployments/44ffabf6-4b2f-4d3f-838b-093d0f24d652",
+                    tokenBroker: {
+                        enableTokenBroker: true,
+                        enableRecaptcha: true
+                    }
                 }),
             );
         });
-        // window.addEventListener("chat-messenger-loaded", () => {
-        //   const cm = document.querySelector("chat-messenger");
-        //   cm.accessToken = yourToken;
-        // });
     </script>
     <!-- Update the url-allowlist attribute with a comma-separated list of origins allowed to render images -->
     <chat-messenger url-allowlist="*" color-scheme="dark">
-        <chat-messenger-container chat-title="Hello!"
+        <chat-messenger-container chat-title="Aloe"
             chat-title-icon="https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
             enable-file-upload enable-audio-input>
             <chat-reset-session-button slot="titlebar-actions" title-text="Start new chat"></chat-reset-session-button>
